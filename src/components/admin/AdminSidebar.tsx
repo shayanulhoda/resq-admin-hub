@@ -13,6 +13,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  FolderTree,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,6 +32,7 @@ import resqboxLogo from "@/assets/resqbox-logo.svg";
 const menuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Banners", url: "/banners", icon: Image },
+  { title: "Categories", url: "/categories", icon: FolderTree },
   { title: "Restaurants", url: "/restaurants", icon: UtensilsCrossed },
   { title: "Users", url: "/users", icon: Users },
   { title: "Orders", url: "/orders", icon: Package },
