@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FolderTree,
+  Wallet,
 } from "lucide-react";
 import {
   Sidebar,
@@ -40,6 +41,7 @@ const menuItems = [
   { title: "Roles", url: "/roles", icon: Shield },
   { title: "Team", url: "/team", icon: UserCog },
   { title: "Config", url: "/config", icon: Settings },
+  { title: "Payouts", url: "/payouts", icon: Wallet },
 ];
 
 export function AdminSidebar() {
