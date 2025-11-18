@@ -11,54 +11,74 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Search, Filter } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Search, Filter, Bell } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 const mockRestaurants = [
   {
-    id: 1,
+    id: "Rest1234",
     name: "Green Bites Café",
     city: "Sydney",
     phone: "+61 2 9876 5432",
     status: "Approved",
-    createdAt: "2024-01-15",
+    certificateExpiry: "2025-06-15",
   },
   {
-    id: 2,
+    id: "Rest4576",
     name: "Eco Eats Restaurant",
     city: "Melbourne",
     phone: "+61 3 8765 4321",
     status: "Pending",
-    createdAt: "2024-03-20",
+    certificateExpiry: "2024-11-19",
   },
   {
-    id: 3,
+    id: "Rest7890",
     name: "Fresh Harvest Bistro",
     city: "Brisbane",
     phone: "+61 7 7654 3210",
     status: "Approved",
-    createdAt: "2024-02-10",
+    certificateExpiry: "2025-08-20",
   },
   {
-    id: 4,
+    id: "Rest3456",
     name: "Waste Not Cafe",
     city: "Perth",
     phone: "+61 8 6543 2109",
     status: "Rejected",
-    createdAt: "2024-03-01",
+    certificateExpiry: "2024-12-10",
+  },
+];
+
+const mockAlerts = [
+  {
+    id: 1,
+    message: "Rest1234 has uploaded a new document.",
+    timestamp: "2 hours ago",
+  },
+  {
+    id: 2,
+    message: "Rest4576: Food Certificate is expiring tomorrow.",
+    timestamp: "5 hours ago",
+  },
+  {
+    id: 3,
+    message: "Rest7890 updated their profile information.",
+    timestamp: "1 day ago",
   },
 ];
 
 export default function Restaurants() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -72,6 +92,51 @@ export default function Restaurants() {
         return "outline";
     }
   };
+
+  const filteredRestaurants = mockRestaurants.filter((restaurant) => {
+    const matchesSearch =
+      restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      restaurant.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      restaurant.phone.includes(searchQuery);
+
+    const matchesTab =
+      activeTab === "all" || restaurant.status.toLowerCase() === activeTab;
+
+    return matchesSearch && matchesTab;
+  });
+
+  const renderTable = (showStatus: boolean) => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Restaurant ID</TableHead>
+          <TableHead>Restaurant Name</TableHead>
+          <TableHead>Phone Number</TableHead>
+          <TableHead>City</TableHead>
+          <TableHead>Food Certificate Expiry Date</TableHead>
+          {showStatus && <TableHead>Status</TableHead>}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {filteredRestaurants.map((restaurant) => (
+          <TableRow key={restaurant.id} className="hover:bg-muted/50">
+            <TableCell className="font-medium">{restaurant.id}</TableCell>
+            <TableCell>{restaurant.name}</TableCell>
+            <TableCell>{restaurant.phone}</TableCell>
+            <TableCell>{restaurant.city}</TableCell>
+            <TableCell>{restaurant.certificateExpiry}</TableCell>
+            {showStatus && (
+              <TableCell>
+                <Badge variant={getStatusVariant(restaurant.status)}>
+                  {restaurant.status}
+                </Badge>
+              </TableCell>
+            )}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,119 +157,112 @@ export default function Restaurants() {
               className="pl-10"
             />
           </div>
-          <Button variant="outline" className="gap-2">
-            <Filter className="h-4 w-4" />
-            Filters
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2">
+              <Filter className="h-4 w-4" />
+              Filters
+            </Button>
+
+            {/* Critical Alerts Drawer */}
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button variant="outline" className="gap-2 relative">
+                  <Bell className="h-4 w-4" />
+                  Critical Alerts
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
+                    {mockAlerts.length}
+                  </span>
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="h-[85vh] fixed right-0 top-0 bottom-0 left-auto w-[35%] rounded-l-lg">
+                <DrawerHeader className="border-b">
+                  <DrawerTitle>Critical Alerts</DrawerTitle>
+                  <DrawerDescription>
+                    Recent notifications requiring your attention
+                  </DrawerDescription>
+                </DrawerHeader>
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  {mockAlerts.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className="p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1">
+                          <Bell className="h-5 w-5 text-warning" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium text-foreground">
+                            {alert.message}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {alert.timestamp}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-t p-4">
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="w-full">
+                      Close
+                    </Button>
+                  </DrawerClose>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          </div>
         </div>
 
-        {/* Restaurants Table */}
+        {/* Tabs */}
         <div className="bg-card rounded-lg border card-shadow overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>City</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created At</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockRestaurants.map((restaurant) => (
-                <TableRow key={restaurant.id} className="hover:bg-muted/50">
-                  <TableCell className="font-medium">{restaurant.name}</TableCell>
-                  <TableCell>{restaurant.city}</TableCell>
-                  <TableCell>{restaurant.phone}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(restaurant.status)}>
-                      {restaurant.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{restaurant.createdAt}</TableCell>
-                  <TableCell className="text-right">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-3xl">
-                        <DialogHeader>
-                          <DialogTitle>{restaurant.name}</DialogTitle>
-                          <DialogDescription>
-                            View restaurant details and take actions
-                          </DialogDescription>
-                        </DialogHeader>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="p-4 border-b bg-muted/20">
+              <TabsList className="bg-background h-11">
+                <TabsTrigger
+                  value="all"
+                  className="rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+                >
+                  All
+                </TabsTrigger>
+                <TabsTrigger
+                  value="approved"
+                  className="rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+                >
+                  Approved
+                </TabsTrigger>
+                <TabsTrigger
+                  value="pending"
+                  className="rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+                >
+                  Pending
+                </TabsTrigger>
+                <TabsTrigger
+                  value="rejected"
+                  className="rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+                >
+                  Rejected
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-                        <Tabs defaultValue="details" className="w-full">
-                          <TabsList className="grid w-full grid-cols-4">
-                            <TabsTrigger value="details">Details</TabsTrigger>
-                            <TabsTrigger value="documents">Documents</TabsTrigger>
-                            <TabsTrigger value="images">Images</TabsTrigger>
-                            <TabsTrigger value="history">History</TabsTrigger>
-                          </TabsList>
+            <TabsContent value="all" className="m-0">
+              {renderTable(true)}
+            </TabsContent>
 
-                          <TabsContent value="details" className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                  Restaurant Name
-                                </label>
-                                <p className="text-base font-medium">{restaurant.name}</p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                  City
-                                </label>
-                                <p className="text-base font-medium">{restaurant.city}</p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                  Phone
-                                </label>
-                                <p className="text-base font-medium">{restaurant.phone}</p>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                  Status
-                                </label>
-                                <div className="mt-1">
-                                  <Badge variant={getStatusVariant(restaurant.status)}>
-                                    {restaurant.status}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
+            <TabsContent value="approved" className="m-0">
+              {renderTable(false)}
+            </TabsContent>
 
-                            <div className="flex gap-3 pt-4">
-                              <Button className="bg-success hover:bg-success/90 text-success-foreground">
-                                ✅ Approve
-                              </Button>
-                              <Button variant="destructive">❌ Reject</Button>
-                            </div>
-                          </TabsContent>
+            <TabsContent value="pending" className="m-0">
+              {renderTable(false)}
+            </TabsContent>
 
-                          <TabsContent value="documents">
-                            <p className="text-muted-foreground">Documents will be displayed here</p>
-                          </TabsContent>
-
-                          <TabsContent value="images">
-                            <p className="text-muted-foreground">Images will be displayed here</p>
-                          </TabsContent>
-
-                          <TabsContent value="history">
-                            <p className="text-muted-foreground">Action history will be displayed here</p>
-                          </TabsContent>
-                        </Tabs>
-                      </DialogContent>
-                    </Dialog>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+            <TabsContent value="rejected" className="m-0">
+              {renderTable(false)}
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
