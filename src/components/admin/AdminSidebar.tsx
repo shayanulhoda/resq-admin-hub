@@ -42,6 +42,7 @@ const menuItems = [
   { title: "Team", url: "/team", icon: UserCog },
   { title: "Config", url: "/config", icon: Settings },
   { title: "Payouts", url: "/payouts", icon: Wallet },
+  { title: "Support Requests", url: "/support-requests", icon: Bell },
 ];
 
 export function AdminSidebar() {

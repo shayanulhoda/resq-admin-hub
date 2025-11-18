@@ -15,6 +15,7 @@ import Roles from "./pages/Roles";
 import Team from "./pages/Team";
 import Config from "./pages/Config";
 import Payouts from "./pages/Payouts";
+import SupportRequests from "./pages/SupportRequests";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/team" element={<AdminLayout><Team /></AdminLayout>} />
           <Route path="/config" element={<AdminLayout><Config /></AdminLayout>} />
           <Route path="/payouts" element={<AdminLayout><Payouts /></AdminLayout>} />
+          <Route path="/support-requests" element={<AdminLayout><SupportRequests /></AdminLayout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
